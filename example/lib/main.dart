@@ -23,8 +23,6 @@ class _MyAppState extends State<MyApp> {
 
   final _playerPCMI16 = RawSoundPlayer();
   final _playerPCMF32 = RawSoundPlayer();
-  bool _playerPCMI16Inited = false;
-  bool _playerPCMF32Inited = false;
 
   @override
   void initState() {
@@ -38,7 +36,7 @@ class _MyAppState extends State<MyApp> {
     )
         .then((value) {
       setState(() {
-        _playerPCMI16Inited = true;
+        //
       });
     });
     _playerPCMF32
@@ -50,7 +48,7 @@ class _MyAppState extends State<MyApp> {
     )
         .then((value) {
       setState(() {
-        _playerPCMF32Inited = true;
+        //
       });
     });
   }
@@ -139,10 +137,10 @@ class _MyAppState extends State<MyApp> {
   }
 
   Widget build(BuildContext context) {
-    debugPrint('PlayerPCMI16 is inited? $_playerPCMI16Inited');
-    debugPrint('PlayerPCMF32 is inited? $_playerPCMF32Inited');
+    debugPrint('PlayerPCMI16 is inited? ${_playerPCMI16.isInited}');
+    debugPrint('PlayerPCMF32 is inited? ${_playerPCMF32.isInited}');
 
-    if (!_playerPCMI16Inited || !_playerPCMF32Inited) {
+    if (!_playerPCMI16.isInited || !_playerPCMF32.isInited) {
       return Container();
     }
 

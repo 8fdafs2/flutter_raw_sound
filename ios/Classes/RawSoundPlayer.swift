@@ -126,6 +126,14 @@ class RawSoundPlayer {
         self.queUseBufferIdled.signal()
         self.logger.debug("<-- queUseBuffer")
       }
+
+      let n = self.buffersCacheSize - self.getBuffersCount()
+      if n > 0 {
+        for _ in 1...n {
+          self.semBufferUsed.signal()
+        }
+      }
+
       while self.playerNode.isPlaying {
         guard self.semBufferAdded.wait(timeout: .now() + .seconds(1)) == .success else {
           continue
@@ -151,6 +159,8 @@ class RawSoundPlayer {
   func stop() -> Bool {
     defer {
       clearBuffers()
+      resetSemBufferUsed()
+      resetSemBufferAdded()
     }
     guard audioEngine.isRunning else {
       logger.error("audio engine is not running")
@@ -166,9 +176,6 @@ class RawSoundPlayer {
   }
 
   func pause() -> Bool {
-    defer {
-      clearBuffers()
-    }
     guard audioEngine.isRunning else {
       logger.error("audio engine is not running")
       return false
@@ -214,14 +221,12 @@ class RawSoundPlayer {
       let buffer = self.dataToBuffer(data)
       self.addBuffer(buffer)
       self.semBufferAdded.signal()
-      if self.getBuffersCount() >= self.buffersCacheSize {
-        while self.playerNode.isPlaying {
-          guard self.semBufferUsed.wait(timeout: .now() + .seconds(1)) == .success else {
-            continue
-          }
-          if self.getBuffersCount() < self.buffersCacheSize {
-            break
-          }
+      while self.playerNode.isPlaying {
+        guard self.semBufferUsed.wait(timeout: .now() + .seconds(1)) == .success else {
+          continue
+        }
+        if self.getBuffersCount() < self.buffersCacheSize {
+          break
         }
       }
       onDone(true)
@@ -321,4 +326,17 @@ class RawSoundPlayer {
 
     return convertedAudioBuffer
   }
+
+  private func resetSemBufferUsed() {
+    while semBufferUsed.wait(timeout: .now()) == .success {
+      //
+    }
+  }
+
+  private func resetSemBufferAdded() {
+    while semBufferAdded.wait(timeout: .now()) == .success {
+      //
+    }
+  }
+
 }
