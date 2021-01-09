@@ -1,5 +1,5 @@
 # raw_sound
-[![pub package](https://img.shields.io/badge/pub-v0.1.0%2B1-yellowgreen)](https://pub.dev/packages/raw_sound)
+[![pub package](https://img.shields.io/badge/pub-v0.1.1-yellowgreen)](https://pub.dev/packages/raw_sound)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A flutter plugin for playing raw PCM audio data (16-bit integer and 32-bit float).
@@ -26,7 +26,7 @@ A flutter plugin for playing raw PCM audio data (16-bit integer and 32-bit float
     pcmType: RawSoundPCMType.PCMI16,
   );
 ```
-- Start playing
+- Start the playback
 ```dart
   await _player.play();
 ```
@@ -36,9 +36,12 @@ A flutter plugin for playing raw PCM audio data (16-bit integer and 32-bit float
     await _player.feed(dataBlock);
   }
 ```
-- Pause/Stop the playing
+- Pause the playback
 ```dart
   await _player.pause();
+```
+- Stop the playback
+```dart
   await _player.stop();
 ```
 - Release the player instance

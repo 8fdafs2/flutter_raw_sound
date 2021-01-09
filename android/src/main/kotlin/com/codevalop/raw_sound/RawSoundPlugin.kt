@@ -45,7 +45,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
                 Log.e(TAG, "Invalid playerNo: $playerNo")
                 return
             }
-            Log.d(TAG, "${call.method} w/ playerNo: $playerNo")
+            // Log.d(TAG, "${call.method} w/ playerNo: $playerNo")
         }
 
         when (call.method) {

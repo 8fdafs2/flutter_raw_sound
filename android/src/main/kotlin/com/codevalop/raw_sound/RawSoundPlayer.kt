@@ -60,9 +60,9 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
                 .setSampleRate(sampleRate)
                 .setChannelMask(if (nChannels == 1) AudioFormat.CHANNEL_OUT_MONO else AudioFormat.CHANNEL_OUT_STEREO)
                 .build()
-        Log.i(TAG, "Create audio track w/ bufferSize: $bufferSize, sampleRate: ${format.getSampleRate()}, encoding: ${format.getEncoding()}, nChannels: ${format.getChannelCount()}")
+        Log.i(TAG, "Create audio track w/ bufferSize: $bufferSize, sampleRate: ${format.sampleRate}, encoding: ${format.encoding}, nChannels: ${format.channelCount}")
         audioTrack = AudioTrack(attributes, format, bufferSize, AudioTrack.MODE_STREAM, sessionId)
-        Log.i(TAG, "sessionId: ${audioTrack.getAudioSessionId()}, bufferCapacityInFrames: ${audioTrack.getBufferCapacityInFrames()}, bufferSizeInFrames: ${audioTrack.getBufferSizeInFrames()}")
+        Log.i(TAG, "sessionId: ${audioTrack.audioSessionId}, bufferCapacityInFrames: ${audioTrack.bufferCapacityInFrames}, bufferSizeInFrames: ${audioTrack.bufferSizeInFrames}")
     }
 
     fun release(): Boolean {
@@ -92,6 +92,18 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         GlobalScope.launch(Dispatchers.IO) {
             Log.d(TAG, "--> queUseBuffer")
             semUseBufferIdled.withPermit {
+
+                val n = buffersCacheSize - getBuffersCount()
+                if (n > 0) {
+                    repeat(n) {
+                        semBufferUsed.release()
+                    }
+                } else if (n < 0) {
+                    repeat(-n) {
+                        semBufferAdded.release()
+                    }
+                }
+
                 while (audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING) {
                     withTimeoutOrNull(1000 * 1) {
                         semBufferAdded.acquire()
@@ -103,7 +115,7 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
                         if (bytes < 0) {
                             Log.e(TAG, "Failed to write into audio track buffer: $bytes")
                             break
-                        } else {
+                        } else if (bytes == 0) {
                             Log.w(TAG, "Write zero bytes into audio track buffer")
                             break
                         }
@@ -129,6 +141,8 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         }
         runBlocking {
             clearBuffers()
+            resetSemBufferUsed();
+            resetSemBufferAdded();
         }
         return r
     }
@@ -140,9 +154,6 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         } catch (t: Throwable) {
             Log.e(TAG, "Trying to pause an uninitialized audio track")
             false
-        }
-        runBlocking {
-            clearBuffers()
         }
         return r
     }
@@ -169,14 +180,12 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
             semAddBufferIdled.withPermit {
                 addBuffer(ByteBuffer.wrap(data))
                 semBufferAdded.release()
-                if (getBuffersCount() >= buffersCacheSize) {
-                    while (audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING) {
-                        withTimeoutOrNull(1000 * 1) {
-                            semBufferUsed.acquire()
-                        } ?: continue
-                        if (getBuffersCount() < buffersCacheSize) {
-                            break
-                        }
+                while (audioTrack.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                    withTimeoutOrNull(1000 * 1) {
+                        semBufferUsed.acquire()
+                    } ?: continue
+                    if (getBuffersCount() < buffersCacheSize) {
+                        break
                     }
                 }
                 onDone(true)
@@ -219,6 +228,18 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         lckBuffers.withLock {
             val size = buffers.size
             return if (size == 0) null else buffers.removeAt(size - 1)
+        }
+    }
+
+    private fun resetSemBufferUsed() {
+        while (semBufferUsed.tryAcquire()) {
+            //
+        }
+    }
+
+    private fun resetSemBufferAdded() {
+        while (semBufferAdded.tryAcquire()) {
+            //
         }
     }
 }
