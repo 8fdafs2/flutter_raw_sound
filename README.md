@@ -1,5 +1,5 @@
 # raw_sound
-[![pub package](https://img.shields.io/badge/pub-v0.1.1-yellowgreen)](https://pub.dev/packages/raw_sound)
+[![pub package](https://img.shields.io/badge/pub-v0.1.1%2B2-yellowgreen)](https://pub.dev/packages/raw_sound)
 [![License](https://img.shields.io/badge/License-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A flutter plugin for playing raw PCM audio data (16-bit integer and 32-bit float).
