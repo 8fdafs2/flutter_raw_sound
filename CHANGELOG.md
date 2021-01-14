@@ -1,3 +1,7 @@
+## 0.2.0-nullsafety.0
+
+* Implement null-safety.
+
 ## 0.1.1+3
 
 * Fix bugs.

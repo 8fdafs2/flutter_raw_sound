@@ -68,7 +68,7 @@ class RawSoundPlayer implements RawSoundPlayerPrototype {
   ///
   /// The [pcmType] determines the raw PCM format
   Future<void> initialize({
-    int bufferSize = 4096,
+    int bufferSize = 4096 << 3,
     int nChannels = 1,
     int sampleRate = 16000,
     RawSoundPCMType pcmType = RawSoundPCMType.PCMI16,

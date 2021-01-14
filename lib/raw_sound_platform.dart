@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
@@ -23,10 +24,10 @@ class RawSoundPlayerPlatform extends PlatformInterface {
 
   Future<void> initialize(
     RawSoundPlayerPrototype player, {
-    int bufferSize,
-    int nChannels,
-    int sampleRate,
-    int pcmType,
+    int bufferSize = 4096 << 3,
+    int nChannels = 1,
+    int sampleRate = 16000,
+    int pcmType = 0,
   }) async {
     final playerNo = await _channel.invokeMethod<int>('initialize', {
       'bufferSize': bufferSize,
@@ -34,73 +35,79 @@ class RawSoundPlayerPlatform extends PlatformInterface {
       'sampleRate': sampleRate,
       'pcmType': pcmType,
     });
-    _players[player] = playerNo;
+    _players[player] = playerNo!;
   }
 
   Future<void> release(
     RawSoundPlayerPrototype player,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('release', {
+    await _channel.invokeMethod('release', {
       'playerNo': playerNo,
     });
   }
 
   Future<int> play(
     RawSoundPlayerPrototype player,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('play', {
+    final ret = await _channel.invokeMethod<int>('play', {
       'playerNo': playerNo,
     });
+    return ret!;
   }
 
   Future<int> stop(
     RawSoundPlayerPrototype player,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('stop', {
+    final ret = await _channel.invokeMethod<int>('stop', {
       'playerNo': playerNo,
     });
+    return ret!;
   }
 
   Future<int> pause(
     RawSoundPlayerPrototype player,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('pause', {
+    final ret = await _channel.invokeMethod<int>('pause', {
       'playerNo': playerNo,
     });
+    return ret!;
   }
 
   Future<int> resume(
     RawSoundPlayerPrototype player,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('resume', {
+    final ret = await _channel.invokeMethod<int>('resume', {
       'playerNo': playerNo,
     });
+    return ret!;
   }
 
   Future<int> feed(
     RawSoundPlayerPrototype player,
     Uint8List data,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('feed', {
+    final ret = await _channel.invokeMethod<int>('feed', {
       'playerNo': playerNo,
       'data': data,
     });
+    return ret!;
   }
 
   Future<int> setVolume(
     RawSoundPlayerPrototype player,
     double volume,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('setVolume', {
+    final ret = await _channel.invokeMethod<int>('setVolume', {
       'playerNo': playerNo,
       'volume': volume,
     });
+    return ret!;
   }
 }
