@@ -39,9 +39,9 @@ class RawSoundPlayerPlatform extends PlatformInterface {
 
   Future<void> release(
     RawSoundPlayerPrototype player,
-  ) {
+  ) async {
     final playerNo = _players[player];
-    return _channel.invokeMethod('release', {
+    await _channel.invokeMethod('release', {
       'playerNo': playerNo,
     });
   }
