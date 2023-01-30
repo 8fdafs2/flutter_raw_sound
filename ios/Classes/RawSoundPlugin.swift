@@ -11,16 +11,12 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
     registrar.addMethodCallDelegate(instance, channel: channel)
   }
 
-  private let logger = Logger(
-    subsystem: "com.codevalop.raw_sound", category: "RawSoundPlugin")
-
   private let channel: FlutterMethodChannel
   private var players = [RawSoundPlayer]()
 
   init(channel: FlutterMethodChannel) {
     self.channel = channel
     super.init()
-    logger.info("initialized")
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
@@ -33,12 +29,9 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
       if playerNo < 0 || playerNo > players.count - 1 {
         result(
           FlutterError(code: "Invalid Args", message: "Invalid playerNo: $playerNo", details: nil))
-        logger.error("Invalid playerNo: \(playerNo)")
         return
       }
     }
-
-    // logger.debug("call.method: \(call.method)")
 
     switch call.method {
     case "getPlatformVersion":
@@ -64,8 +57,6 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
     case "feed":
       let _data = args["data"] as! FlutterStandardTypedData
       let data: [UInt8] = [UInt8](_data.data)
-      // logger.debug("data: \(data[0]) \(data[1]) \(data[2]) \(data[3]) ...")
-      // logger.debug("data.count: \(data.count)")
       feed(playerNo: playerNo, data: data, result: result)
     case "setVolume":
       let volume = args["volume"] as! Float

@@ -14,8 +14,6 @@ public enum PCMType: Int {
 }
 
 class RawSoundPlayer {
-  private let logger = Logger(
-    subsystem: "com.codevalop.raw_sound", category: "RawSoundPlayer")
 
   private let audioEngine = AVAudioEngine()
   private let playerNode = AVAudioPlayerNode()
@@ -52,7 +50,6 @@ class RawSoundPlayer {
     do {
       try session.setCategory(.playback, mode: .default)
     } catch {
-      logger.error("\(error.localizedDescription)")
       return nil
     }
 
@@ -82,7 +79,6 @@ class RawSoundPlayer {
       playerNode, to: audioEngine.outputNode, format: outputFormat)
     audioEngine.prepare()
     buffers.reserveCapacity(buffersCacheSize)
-    logger.info("initialized")
   }
 
   func release() -> Bool {
@@ -104,27 +100,21 @@ class RawSoundPlayer {
 
   func play() -> Bool {
     if !audioEngine.isRunning {
-      logger.error("audio engine is not running")
+
       do {
-        logger.debug("--> starting audio engine")
         try audioEngine.start()
-        logger.debug("<-- starting audio engine")
       } catch {
-        logger.error("\(error.localizedDescription)")
         return false
       }
     }
-    logger.debug("--> starting player")
+
     playerNode.play()
-    logger.debug("<-- starting player")
     isPaused = false
 
     queUseBuffer.async {
-      self.logger.debug("--> queUseBuffer")
       self.queUseBufferIdled.wait()
       defer {
         self.queUseBufferIdled.signal()
-        self.logger.debug("<-- queUseBuffer")
       }
 
       let n = self.buffersCacheSize - self.getBuffersCount()
@@ -145,9 +135,7 @@ class RawSoundPlayer {
           buffer,
           completionCallbackType: .dataConsumed,
           completionHandler: { _ in
-            // self.logger.debug("--> completionHandler")
             self.semBufferUsed.signal()
-            // self.logger.debug("<-- completionHandler")
           }
         )
       }
@@ -163,13 +151,10 @@ class RawSoundPlayer {
       resetSemBufferAdded()
     }
     guard audioEngine.isRunning else {
-      logger.error("audio engine is not running")
       return true
     }
     if playerNode.isPlaying {
-      logger.debug("--> stopping player")
       playerNode.stop()
-      logger.debug("<-- stopping player")
       isPaused = false
     }
     return true
@@ -177,7 +162,6 @@ class RawSoundPlayer {
 
   func pause() -> Bool {
     guard audioEngine.isRunning else {
-      logger.error("audio engine is not running")
       return false
     }
     if playerNode.isPlaying {
@@ -189,7 +173,6 @@ class RawSoundPlayer {
 
   func resume() -> Bool {
     guard audioEngine.isRunning else {
-      logger.error("audio engine is not running")
       return false
     }
     if !playerNode.isPlaying {
@@ -201,22 +184,18 @@ class RawSoundPlayer {
 
   func feed(data: [UInt8], onDone: @escaping (_ r: Bool) -> Void) {
     guard audioEngine.isRunning else {
-      logger.error("audio engine is not running")
       onDone(false)
       return
     }
     guard playerNode.isPlaying else {
-      logger.error("player is not playing")
       onDone(true)
       return
     }
 
     queAddBuffer.async {
-      // self.logger.debug("--> queAddBuffer")
       self.queAddBufferIdled.wait()
       defer {
         self.queAddBufferIdled.signal()
-        // self.logger.debug("<-- queAddBuffer")
       }
       let buffer = self.dataToBuffer(data)
       self.addBuffer(buffer)
@@ -235,7 +214,6 @@ class RawSoundPlayer {
 
   func setVolume(_ volume: Float) -> Bool {
     guard audioEngine.isRunning else {
-      logger.error("audio engine is not running")
       return false
     }
     playerNode.volume = volume
@@ -291,9 +269,6 @@ class RawSoundPlayer {
     }
 
     // let iData = audioBuffer.int16ChannelData![0]
-    // self.logger.debug(
-    //   "iData: \(iData[0]) \(iData[1]) \(iData[2]) \(iData[3]) \(iData[4]) \(iData[5]) \(iData[6]) ..."
-    // )
 
     let audioConverter = AVAudioConverter(from: inputFormat, to: outputFormat)!
     let ratio = Double(outputFormat.sampleRate) / Double(inputFormat.sampleRate)
@@ -308,21 +283,6 @@ class RawSoundPlayer {
         outStatus.pointee = .haveData
         return audioBuffer
       })
-
-    if r != .haveData {
-      logger.debug("unexpected convert result: \(r.rawValue)")
-    }
-
-    if let err = error {
-      logger.error("\(err.localizedDescription)")
-    }
-
-    // logger.debug("convertedAudioBuffer.frameLength: \(convertedAudioBuffer.frameLength)")
-
-    // let fData = convertedAudioBuffer.floatChannelData![0]
-    // self.logger.debug(
-    //   "fData: \(fData[0]) \(fData[1]) \(fData[2]) \(fData[3]) \(fData[4]) \(fData[5]) \(fData[6]) ..."
-    // )
 
     return convertedAudioBuffer
   }
