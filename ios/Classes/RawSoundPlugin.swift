@@ -45,7 +45,7 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
       initialize(
         bufferSize: bufferSize, sampleRate: sampleRate,
         nChannels: nChannels, pcmType: pcmType, configureAudioSession: configureAudioSession,
-        result: result,
+        result: result
         )
     case "release":
       release(playerNo: playerNo, result: result)
