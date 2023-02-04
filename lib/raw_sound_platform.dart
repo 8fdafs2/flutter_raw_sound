@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
@@ -28,12 +29,14 @@ class RawSoundPlayerPlatform extends PlatformInterface {
     int nChannels = 1,
     int sampleRate = 16000,
     int pcmType = 0,
+    bool configureAudioSession = true,
   }) async {
     final playerNo = await _channel.invokeMethod<int>('initialize', {
       'bufferSize': bufferSize,
       'nChannels': nChannels,
       'sampleRate': sampleRate,
       'pcmType': pcmType,
+      'configureAudioSession': configureAudioSession,
     });
     _players[player] = playerNo!;
   }

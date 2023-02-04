@@ -41,9 +41,11 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
       let sampleRate = args["sampleRate"] as! Int
       let nChannels = args["nChannels"] as! Int
       let pcmType: PCMType = PCMType(rawValue: args["pcmType"] as! Int)!
+      let configureAudioSession = args["configureAudioSession"] as! Bool
       initialize(
         bufferSize: bufferSize, sampleRate: sampleRate,
-        nChannels: nChannels, pcmType: pcmType, result: result)
+        nChannels: nChannels, pcmType: pcmType, result: result,
+        configureAudioSession: configureAudioSession,)
     case "release":
       release(playerNo: playerNo, result: result)
     case "play":

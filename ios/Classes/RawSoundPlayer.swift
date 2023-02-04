@@ -41,16 +41,18 @@ class RawSoundPlayer {
 
   private let pcmType: PCMType
 
-  init?(bufferSize: Int, sampleRate: Int, nChannels: Int, pcmType: PCMType) {
+  init?(bufferSize: Int, sampleRate: Int, nChannels: Int, pcmType: PCMType, configureAudioSession: Bool) {
     precondition(
       nChannels == 1 || nChannels == 2,
       "Only support one or two channels")
 
-    let session = AVAudioSession.sharedInstance()
-    do {
-      try session.setCategory(.playback, mode: .default)
-    } catch {
-      return nil
+    if(configureAudioSession) {
+        let session = AVAudioSession.sharedInstance()
+        do {
+          try session.setCategory(.playback, mode: .default)
+        } catch {
+          return nil
+        }
     }
 
     // init?(commonFormat: AVAudioCommonFormat, sampleRate: Double, channels: AVAudioChannelCount, interleaved: Bool)

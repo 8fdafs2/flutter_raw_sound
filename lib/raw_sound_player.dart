@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:synchronized/synchronized.dart';
 
 import 'package:raw_sound/raw_sound_platform.dart';
+import 'package:synchronized/synchronized.dart';
 
 /// Raw PCM format type
 enum RawSoundPCMType {
@@ -72,6 +72,7 @@ class RawSoundPlayer implements RawSoundPlayerPrototype {
     int nChannels = 1,
     int sampleRate = 16000,
     RawSoundPCMType pcmType = RawSoundPCMType.PCMI16,
+    bool configureAudioSession = true,
   }) async {
     print('RS:---> initialize');
 
@@ -84,6 +85,7 @@ class RawSoundPlayer implements RawSoundPlayerPrototype {
         nChannels: nChannels,
         sampleRate: sampleRate,
         pcmType: pcmType.index,
+        configureAudioSession: configureAudioSession,
       );
       _playState = PlayState.stopped;
       _isInited = true;
