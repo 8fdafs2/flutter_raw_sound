@@ -44,8 +44,9 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
       let configureAudioSession = args["configureAudioSession"] as! Bool
       initialize(
         bufferSize: bufferSize, sampleRate: sampleRate,
-        nChannels: nChannels, pcmType: pcmType, result: result,
-        configureAudioSession: configureAudioSession,)
+        nChannels: nChannels, pcmType: pcmType, configureAudioSession: configureAudioSession,
+        result: result,
+        )
     case "release":
       release(playerNo: playerNo, result: result)
     case "play":
@@ -84,13 +85,14 @@ public class RawSoundPlugin: NSObject, FlutterPlugin {
   }
 
   private func initialize(
-    bufferSize: Int, sampleRate: Int, nChannels: Int, pcmType: PCMType,
+    bufferSize: Int, sampleRate: Int, nChannels: Int, pcmType: PCMType, configureAudioSession: Bool,
     result: @escaping FlutterResult
   ) {
     guard
       let player = RawSoundPlayer(
         bufferSize: bufferSize, sampleRate: sampleRate,
-        nChannels: nChannels, pcmType: pcmType)
+        nChannels: nChannels, pcmType: pcmType,
+        configureAudioSession: configureAudioSession)
     else {
       sendResultError(
         "Error", message: "Failed to initalize", details: nil, result: result)
