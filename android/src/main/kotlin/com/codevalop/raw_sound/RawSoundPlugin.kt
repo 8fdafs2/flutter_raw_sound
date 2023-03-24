@@ -3,8 +3,6 @@ package com.codevalop.raw_sound
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import io.flutter.Log
 import io.flutter.embedding.engine.plugins.FlutterPlugin
 import io.flutter.plugin.common.MethodCall
@@ -29,13 +27,13 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
 
     private var players: MutableList<RawSoundPlayer> = mutableListOf()
 
-    override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onAttachedToEngine(flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, "codevalop.com/raw_sound")
         channel.setMethodCallHandler(this)
         androidContext = flutterPluginBinding.applicationContext
     }
 
-    override fun onMethodCall(@NonNull call: MethodCall, @NonNull result: Result) {
+    override fun onMethodCall(call: MethodCall, result: Result) {
         var playerNo: Int = -1
 
         if (call.method != "initialize") {
@@ -88,32 +86,31 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
+    override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
         channel.setMethodCallHandler(null)
     }
 
-    private fun sendResultError(@NonNull errorCode: String, @Nullable errorMessage: String,
-                                @Nullable errorDetails: Any?, @NonNull result: Result) {
+    private fun sendResultError(errorCode: String, errorMessage: String, errorDetails: Any?, result: Result) {
         Handler(Looper.getMainLooper()).post {
             result.error(errorCode, errorMessage, errorDetails)
         }
     }
 
-    private fun sendResultInt(@NonNull playState: Int, @NonNull result: Result) {
+    private fun sendResultInt(playState: Int, result: Result) {
         Handler(Looper.getMainLooper()).post {
             result.success(playState)
         }
     }
 
-    private fun initialize(@NonNull bufferSize: Int, @NonNull sampleRate: Int,
-                           @NonNull nChannels: Int, @NonNull pcmType: PCMType,
-                           @NonNull result: Result) {
+    private fun initialize(bufferSize: Int, sampleRate: Int,
+                           nChannels: Int, pcmType: PCMType,
+                           result: Result) {
         val player = RawSoundPlayer(androidContext, bufferSize, sampleRate, nChannels, pcmType)
         players.add(player)
         sendResultInt(players.lastIndex, result)
     }
 
-    private fun release(@NonNull playerNo: Int, @NonNull result: Result) {
+    private fun release(playerNo: Int, result: Result) {
         val player = players[playerNo]
         if (player.release()) {
             players.removeAt(playerNo)
@@ -124,7 +121,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun play(@NonNull playerNo: Int, @NonNull result: Result) {
+    private fun play(playerNo: Int, result: Result) {
         val player = players[playerNo]
         if (player.play()) {
             sendResultInt(player.getPlayState(), result)
@@ -134,7 +131,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun stop(@NonNull playerNo: Int, @NonNull result: Result) {
+    private fun stop(playerNo: Int, result: Result) {
         val player = players[playerNo]
         if (player.stop()) {
             sendResultInt(player.getPlayState(), result)
@@ -144,7 +141,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun resume(@NonNull playerNo: Int, @NonNull result: Result) {
+    private fun resume(playerNo: Int, result: Result) {
         val player = players[playerNo]
         if (player.resume()) {
             sendResultInt(player.getPlayState(), result)
@@ -154,7 +151,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun pause(@NonNull playerNo: Int, @NonNull result: Result) {
+    private fun pause(playerNo: Int, result: Result) {
         val player = players[playerNo]
         if (player.pause()) {
             sendResultInt(player.getPlayState(), result)
@@ -164,7 +161,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun feed(@NonNull playerNo: Int, @NonNull data: ByteArray, @NonNull result: Result) {
+    private fun feed(playerNo: Int, data: ByteArray, result: Result) {
         val player = players[playerNo]
         player.feed(
                 data
@@ -178,7 +175,7 @@ class RawSoundPlugin : FlutterPlugin, MethodCallHandler {
         }
     }
 
-    private fun setVolume(@NonNull playerNo: Int, @NonNull volume: Float, @NonNull result: Result) {
+    private fun setVolume(playerNo: Int, volume: Float, result: Result) {
         val player = players[playerNo]
         if (player.setVolume(volume)) {
             sendResultInt(player.getPlayState(), result)

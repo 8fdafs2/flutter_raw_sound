@@ -1,3 +1,6 @@
+## 0.3.1
+* Upgrade gradle & kotlin version.
+
 ## 0.3.0+1
 
 * Update readme.

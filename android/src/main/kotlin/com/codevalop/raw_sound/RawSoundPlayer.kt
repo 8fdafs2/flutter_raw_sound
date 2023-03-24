@@ -5,7 +5,6 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import androidx.annotation.NonNull
 import io.flutter.Log
 import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
@@ -26,8 +25,8 @@ enum class PCMType {
 }
 
 /** RawSoundPlayer */
-class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
-                     @NonNull sampleRate: Int, @NonNull nChannels: Int, @NonNull pcmType: PCMType) {
+class RawSoundPlayer(androidContext: Context, bufferSize: Int,
+                     sampleRate: Int, nChannels: Int, pcmType: PCMType) {
     companion object {
         const val TAG = "RawSoundPlayer"
     }
@@ -81,6 +80,7 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun play(): Boolean {
         try {
             audioTrack.play()
@@ -90,7 +90,7 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         }
 
         GlobalScope.launch(Dispatchers.IO) {
-            Log.d(TAG, "--> queUseBuffer")
+            Log.d(/* tag = */ TAG, /* message = */ "--> queUseBuffer")
             semUseBufferIdled.withPermit {
 
                 val n = buffersCacheSize - getBuffersCount()
@@ -141,8 +141,8 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         }
         runBlocking {
             clearBuffers()
-            resetSemBufferUsed();
-            resetSemBufferAdded();
+            resetSemBufferUsed()
+            resetSemBufferAdded()
         }
         return r
     }
@@ -168,7 +168,8 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         }
     }
 
-    fun feed(@NonNull data: ByteArray, onDone: (r: Boolean) -> Unit) {
+    @OptIn(DelicateCoroutinesApi::class)
+    fun feed(data: ByteArray, onDone: (r: Boolean) -> Unit) {
         if (audioTrack.playState != AudioTrack.PLAYSTATE_PLAYING) {
             Log.e(TAG, "Player is not playing")
             onDone(true)
@@ -195,7 +196,7 @@ class RawSoundPlayer(@NonNull androidContext: Context, @NonNull bufferSize: Int,
         // Log.d(TAG, "underrun count: ${audioTrack.underrunCount}")
     }
 
-    fun setVolume(@NonNull volume: Float): Boolean {
+    fun setVolume(volume: Float): Boolean {
         val r = audioTrack.setVolume(volume)
         if (r == AudioTrack.SUCCESS) {
             return true
