@@ -1,7 +1,7 @@
 ## 0.4.0
 
 * Adds support for older Android and iOS versions
-* Adds an option to toggle the audio session behavior on iOS
+* Adds an option to toggle the audio session behaviour on iOS
 * Updates package dependencies
 
 * ## 0.3.0+1
