@@ -38,7 +38,7 @@ android {
 
     defaultConfig {
         applicationId "com.codevalop.raw_sound_example"
-        minSdkVersion 24
+        minSdkVersion 23
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
